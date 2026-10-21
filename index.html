@@ -1,1 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>即時時鐘 | Real-Time Clock</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="clock-container">
+        <!-- 數字時鐘 -->
+        <div id="clock">
+            00:00:00
+            <span class="ampm" id="ampmDisplay">上午</span>
+        </div>
+        
+        <!-- 日期顯示 -->
+        <div class="date-display" id="dateDisplay">2025年1月1日 星期三</div>
+        
+        <!-- 指針時鐘 -->
+        <div class="analog-clock">
+            <div class="clock-face">
+                <!-- 時鐘數字 -->
+                <div class="clock-number number-12">12</div>
+                <div class="clock-number number-3">3</div>
+                <div class="clock-number number-6">6</div>
+                <div class="clock-number number-9">9</div>
+                
+                <!-- 時鐘刻度 -->
+                <div class="tick tick-1"></div>
+                <div class="tick tick-2"></div>
+                <div class="tick tick-3"></div>
+                <div class="tick tick-4"></div>
+                <div class="tick tick-5"></div>
+                <div class="tick tick-6"></div>
+                <div class="tick tick-7"></div>
+                <div class="tick tick-8"></div>
+                <div class="tick tick-9"></div>
+                <div class="tick tick-10"></div>
+                <div class="tick tick-11"></div>
+                <div class="tick tick-12"></div>
+                
+                <!-- 指針 -->
+                <div class="hand hour-hand" id="hourHand"></div>
+                <div class="hand minute-hand" id="minuteHand"></div>
+                <div class="hand second-hand" id="secondHand"></div>
+                
+                <!-- 中心點 -->
+                <div class="center-dot"></div>
+            </div>
+        </div>
+        
+        <!-- 提示文字 -->
+        <div class="hint">點擊時鐘切換 12/24 小時制</div>
+    </div>
 
+    <script>
+        // ===================== 即時時鐘程式 =====================
+        
+        let is24Hour = true; // 預設使用24小時制
+
+        function updateClock() {
+            const now = new Date();
+
+            // 獲取時間
+            const hours24 = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            // 12小時制轉換
+            const hours12 = hours24 % 12 || 12;
+            const ampm = hours24 >= 12 ? '下午' : '上午';
+            
+            // 選擇顯示格式
+            const displayHours = is24Hour ? 
+                String(hours24).padStart(2, '0') : 
+                String(hours12).padStart(2, '0');
+            
+            // 更新數字時鐘
+            document.getElementById('clock').innerHTML = 
+                `${displayHours}:${minutes}:${seconds} <span class="ampm">${is24Hour ? '' : ampm}</span>`;
+
+            // 日期格式
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const weekdaysZh = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekdaysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            
+            const weekdayZh = weekdaysZh[now.getDay()];
+            const weekdayEn = weekdaysEn[now.getDay()];
+            
+            // 更新日期顯示
+            document.getElementById('dateDisplay').textContent = 
+                `${year}年${month}月${day}日 ${weekdayZh} (${weekdayEn})`;
+            
+            // 更新指針時鐘
+            updateAnalogClock(hours24, now.getMinutes(), now.getSeconds());
+        }
+
+        function updateAnalogClock(hours, minutes, seconds) {
+            // 計算指針角度
+            const hourDeg = (hours % 12) * 30 + minutes * 0.5;
+            const minuteDeg = minutes * 6 + seconds * 0.1;
+            const secondDeg = seconds * 6;
+            
+            // 更新指針位置
+            document.getElementById('hourHand').style.transform = 
+                `translateX(-50%) rotate(${hourDeg}deg)`;
+            document.getElementById('minuteHand').style.transform = 
+                `translateX(-50%) rotate(${minuteDeg}deg)`;
+            document.getElementById('secondHand').style.transform = 
+                `translateX(-50%) rotate(${secondDeg}deg)`;
+        }
+
+        // 點擊時鐘切換12/24小時制
+        document.getElementById('clock').addEventListener('click', function() {
+            is24Hour = !is24Hour;
+            updateClock();
+        });
+
+        // 首次立即執行
+        updateClock();
+
+        // 每秒更新一次
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
